@@ -1,183 +1,139 @@
 import { useState } from 'react';
-import { MessageCircle, Send, Mic } from 'lucide-react';
+import { MessageCircle, Send } from 'lucide-react';
 
 export function AIChat({ waitTimes }) {
   const [messages, setMessages] = useState([
-    { role: 'ai', text: "Hi! Ask about wait times or directions", avatar: '🤖' }
+    { role: 'ai', text: `Food:${waitTimes.food}m Rest:${waitTimes.restroom}m` }
   ]);
   const [input, setInput] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
 
   const sendMessage = () => {
-    if (!input.trim() || isTyping) return;
+    if (!input.trim()) return;
     
-    const userMsg = { role: 'user', text: input.trim() };
-    setMessages(prev => [...prev, userMsg]);
+    setMessages(prev => [...prev.slice(-1), { role: 'user', text: input.trim() }]);
     setInput('');
-    setIsTyping(true);
 
     setTimeout(() => {
-      const lowerInput = input.toLowerCase();
-      let response = "Food: " + waitTimes.food + "min | Restrooms: " + waitTimes.restroom + "min";
+      const text = input.toLowerCase();
+      let response = `Food: ${waitTimes.food}m`;
       
-      if (lowerInput.includes('food')) response = `🍔 Gate 7: ${waitTimes.food}min (180m)`;
-      if (lowerInput.includes('bathroom') || lowerInput.includes('restroom')) response = `🚻 Gate 3: ${waitTimes.restroom}min (90m)`;
-      if (lowerInput.includes('beer') || lowerInput.includes('drink')) response = `🍺 Section 12: ${waitTimes.concessions}min`;
+      if (text.includes('food')) response = `Gate 7: ${waitTimes.food}m`;
+      if (text.includes('rest')) response = `Gate 3: ${waitTimes.restroom}m`;
+      if (text.includes('beer')) response = `Sec12: ${waitTimes.concessions}m`;
       
-      setMessages(prev => [...prev, { role: 'ai', text: response, avatar: '🤖' }]);
-      setIsTyping(false);
-      
-      // Keep only last 4 messages
-      if (messages.length > 6) {
-        setMessages(prev => prev.slice(-4));
-      }
-    }, 800);
+      setMessages(prev => [...prev.slice(-1), { role: 'ai', text: response }]);
+    }, 600);
   };
-
-  const handleKeyPress = (e) => e.key === 'Enter' && sendMessage();
 
   return (
     <div style={{
       position: 'fixed',
-      bottom: '20px',
-      right: '20px',
-      width: '340px',
-      maxWidth: '85vw',
-      zIndex: 100,
-      height: '420px'  // ← FIXED HEIGHT
+      bottom: '16px',
+      right: '16px',
+      width: '280px',    // ← 25% smaller
+      height: '320px',   // ← 25% smaller
+      zIndex: 100
     }}>
       <div style={{
-        background: 'rgba(255,255,255,0.95)',
-        backdropFilter: 'blur(25px)',
-        borderRadius: '20px',
-        boxShadow: '0 20px 40px rgba(0,0,0,0.25)',
-        border: '1px solid rgba(255,255,255,0.3)',
+        background: 'rgba(255,255,255,0.97)',
+        backdropFilter: 'blur(20px)',
+        borderRadius: '16px',
+        boxShadow: '0 12px 30px rgba(0,0,0,0.2)',
+        border: '1px solid rgba(255,255,255,0.4)',
         height: '100%',
         overflow: 'hidden',
-        display: 'flex',
-        flexDirection: 'column'
+        fontFamily: '-apple-system, sans-serif',
+        fontSize: '0.85rem'
       }}>
-        {/* Compact Header */}
+        {/* Mini Header */}
         <div style={{
           background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-          padding: '16px 20px',
+          padding: '12px 16px',
+          color: 'white',
+          fontWeight: '700',
+          fontSize: '0.9rem',
           display: 'flex',
           alignItems: 'center',
-          gap: '10px',
-          fontSize: '0.95rem'
+          gap: '8px'
         }}>
-          <MessageCircle style={{width: '20px', height: '20px', color: 'white'}} />
-          <span style={{color: 'white', fontWeight: '700'}}>AI Assistant</span>
+          <MessageCircle style={{width: '16px', height: '16px'}} />
+          AI
         </div>
 
-        {/* Compact Messages - Fixed Height */}
+        {/* Tiny Messages */}
         <div style={{
-          flex: 1,
+          height: '200px',  // ← Much smaller
           overflowY: 'auto',
-          padding: '16px',
-          background: '#f8fafc',
-          minHeight: '240px'
+          padding: '12px',
+          background: '#f9fafb'
         }}>
-          {messages.slice(-4).map((msg, i) => (  // Show only last 4
+          {messages.slice(-2).map((msg, i) => (  // ← Only LAST 2 messages!
             <div 
               key={i}
               style={{
                 display: 'flex',
-                gap: '8px',
-                marginBottom: '12px',
                 justifyContent: msg.role === 'ai' ? 'flex-start' : 'flex-end',
-                fontSize: '0.9rem'
+                gap: '6px',
+                marginBottom: '8px',
+                fontSize: '0.82rem',
+                lineHeight: '1.3'
               }}
             >
               {msg.role === 'ai' && (
                 <div style={{
-                  width: '28px', height: '28px',
-                  borderRadius: '50%', 
-                  background: '#6366f1',
+                  width: '22px', height: '22px',
+                  borderRadius: '50%', background: '#6366f1',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '0.8rem', color: 'white', flexShrink: 0
+                  fontSize: '0.7rem', color: 'white'
                 }}>
                   🤖
                 </div>
               )}
               <div style={{
-                maxWidth: '220px',
-                padding: '10px 14px',
-                borderRadius: '16px',
-                background: msg.role === 'ai' ? '#e2e8f0' : 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                maxWidth: '180px',
+                padding: '8px 12px',
+                borderRadius: '12px',
+                background: msg.role === 'ai' ? '#e5e7eb' : '#3b82f6',
                 color: msg.role === 'ai' ? '#374151' : 'white',
-                lineHeight: '1.4',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                boxShadow: '0 1px 4px rgba(0,0,0,0.1)'
               }}>
                 {msg.text}
               </div>
-              {msg.role === 'user' && (
-                <div style={{
-                  width: '28px', height: '28px',
-                  borderRadius: '50%', 
-                  background: '#3b82f6',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  flexShrink: 0
-                }}>
-                  👤
-                </div>
-              )}
             </div>
           ))}
-          
-          {isTyping && (
-            <div style={{display: 'flex', gap: '8px', justifyContent: 'flex-start', padding: '8px 0'}}>
-              <div style={{
-                width: '28px', height: '28px',
-                borderRadius: '50%', background: '#6366f1',
-                display: 'flex', alignItems: 'center', justifyContent: 'center'
-              }}>
-                🤖
-              </div>
-              <div style={{
-                padding: '8px 12px', borderRadius: '16px',
-                background: '#e2e8f0', color: '#6b7280', fontSize: '0.9rem'
-              }}>
-                Typing...
-              </div>
-            </div>
-          )}
         </div>
 
-        {/* Compact Input */}
+        {/* Micro Input */}
         <div style={{
-          padding: '16px 20px',
+          padding: '12px 16px',
           borderTop: '1px solid #e5e7eb',
           background: 'white'
         }}>
           <div style={{
             display: 'flex',
+            gap: '8px',
             alignItems: 'center',
-            gap: '10px',
-            background: '#f9fafb',
-            borderRadius: '20px',
-            padding: '10px 16px',
-            border: '2px solid #e5e7eb'
+            background: '#f3f4f6',
+            borderRadius: '16px',
+            padding: '8px 12px'
           }}>
-            <Mic style={{width: '18px', height: '18px', color: '#9ca3af'}} />
             <input
               value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Type message..."
+              onChange={(e) => setInput(e.target.value.slice(0,50))}  // 50 char limit
+              onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+              placeholder="Ask..."
               style={{
                 flex: 1,
                 border: 'none',
                 outline: 'none',
-                fontSize: '0.9rem',
+                fontSize: '0.82rem',
                 background: 'transparent',
                 color: '#374151',
-                padding: '4px 0'
+                padding: '2px 0'
               }}
-              maxLength={100}
             />
             <Send 
-              style={{width: '20px', height: '20px', color: input ? '#6366f1' : '#d1d5db'}}
+              style={{width: '16px', height: '16px', color: input ? '#6366f1' : '#d1d5db'}}
               onClick={sendMessage}
               cursor={input ? 'pointer' : 'default'}
             />
